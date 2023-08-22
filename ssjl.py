@@ -15,6 +15,7 @@ from gazpacho import Soup
 from time import sleep, perf_counter
 from random import randrange
 import asyncio
+import json
 
 def create_dir(directory):
     if not os.path.isdir(directory):
@@ -75,6 +76,7 @@ def fetch_and_parse(url):
                 # print(videos)
                 yield {
                     'title': Title,
+                    'subtitle': Subtitle,
                     'type': Type,
                     'link': Link,
                     'thumb': Thumb,
@@ -86,25 +88,35 @@ def fetch_and_parse(url):
                 timeout = randrange(5, 60)
                 print('Waiting: %s' % timeout)
                 sleep(timeout)
-
         offset = limit + offset
-        results_len = len(entries) 
-            
+        results_len = len(entries)
+
 def html2md(html):
     return markdownify.markdownify(html)
 
 def save_files(directory, items):
+    create_dir(directory)
+    start = perf_counter()
     for item in items:
-        start = perf_counter()
         print(item['title'])
         file_path = os.path.basename(item['link'])
-        with open('%s%s%s.md' % (directory, os.path.sep, file_path), 'w') as file:
-            file.write(item['md'])
-            print('File saved: %s%s%s.md' % (directory, os.path.sep, file_path))
+        # with open('%s%s%s.md' % (directory, os.path.sep, file_path), 'w') as file:
+        #     file.write(item['md'])
+        #     print('File saved: %s%s%s.md' % (directory, os.path.sep, file_path))
+        with open('%s%s%s.json' % (directory, os.path.sep, file_path), 'w') as file:
+            file.write(json.dumps({
+                'title': item['title'],
+                'subtitle': item['subtitle'],
+                'type': item['type'],
+                'link': item['link'],
+                'date': item['date'],
+                'md': item['md'],
+            }))
+            print('File saved: %s%s%s.json' % (directory, os.path.sep, file_path))
         save_article_thumb(directory, item)
         asyncio.run(save_article_images(directory, item))
-        end = perf_counter()
-        print(f'It took {round(end-start, 0)} second(s) to complete.')
+    end = perf_counter()
+    print(f'It took {round(end-start, 0)} second(s) to complete.')
 
 def save_image(url, file_path):
     if url:
@@ -150,5 +162,4 @@ def arguments():
 
 if __name__ == '__main__':
     args = arguments()
-    create_dir(args.dir)
     save_files(args.dir, fetch_and_parse(args.url))
