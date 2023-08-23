@@ -25,7 +25,7 @@ for l in $(cat list.txt | shuf); do
   if [ "$(grep "$l" running.txt)" == "" ]; then
     echo $l >> running.txt;
     RUNNING="$l";
-    ./ssjl.py https://$l.substack.com $l;
+    ./ssjl.py "https://$l.substack.com" "$l" --archive "$l.txt";
     grep -v "$l" running.txt > running.txt;
     RUNNING="";
   fi
