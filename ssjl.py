@@ -107,9 +107,13 @@ def fetch_and_parse(url, archive=None):
                             'videos': videos,
                             'date': Date,
                         }
-                timeout = randrange(5, 60)
-                print('Waiting: %s' % timeout)
-                sleep(timeout)
+                    timeout = randrange(5, 60)
+                    print('Waiting: %s' % timeout)
+                    sleep(timeout)
+                else:
+                    timeout = randrange(5, 10)
+                    print('Waiting %s seconds: %s' % (timeout, Link))
+                    sleep(timeout)
             offset = limit + offset
             results_len = len(entries)
     except KeyboardInterrupt:
