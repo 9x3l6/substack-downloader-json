@@ -37,6 +37,7 @@ def fetch_json(url, params):
         return response.json()
     except HTTPError as err:
         print(f'HTTP error occurred: {err}')
+        raise ValueError(err)
     except Exception as err:
         print(f'Other error occurred: {err}')
 
@@ -46,6 +47,7 @@ def fetch_html(url):
         return response.text
     except HTTPError as err:
         print(f'HTTP error occurred: {err}')
+        raise ValueError(err)
     except Exception as err:
         print(f'Other error occurred: {err}')
 
@@ -63,7 +65,12 @@ def fetch_and_parse(url, archive=None):
             files = []
         while results_len != 0:
             params = {'limit': limit, 'offset': offset}
-            entries = fetch_json(url, params=params)
+            try:
+                entries = fetch_json(url, params=params)
+            except ValueError as err:
+                print('Waiting 5 minutes')
+                sleep(300)
+                entries = fetch_json(url, params=params)
             for item in entries:
                 Link = item['canonical_url']
                 if '%s\n' % os.path.basename(Link) not in files:
@@ -73,7 +80,12 @@ def fetch_and_parse(url, archive=None):
                     Subtitle = item['subtitle']
                     Thumb = item['cover_image']
                     Date = item['post_date']
-                    Html = fetch_html(Link)
+                    try:
+                        Html = fetch_html(Link)
+                    except ValueError as err:
+                        print('Waiting 3 minutes')
+                        sleep(180)
+                        Html = fetch_html(Link)
                     soup = Soup(Html)
                     content = soup.find('div', {'class': 'markup'})
                     if content:
