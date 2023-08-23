@@ -29,5 +29,7 @@ for l in $(cat list.txt | shuf); do
     grep -v "$l" running.txt > running.tmp; 
     mv running.tmp running.txt;
     RUNNING="";
+    echo "waiting 60 seconds";
+    sleep 60
   fi
 done
