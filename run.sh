@@ -13,7 +13,7 @@ trap kill_it HUP   # 1  - Hangup detected on controlling terminal or death of co
 
 function kill_it() {
     echo "Killed $@";
-    [ $RUNNING != "" ] && grep -v "$RUNNING" running.txt > running.txt;
+    [ "$RUNNING" != "" ] && grep -v "$RUNNING" running.txt > running.txt;
     deactivate
     exit 1;
 }
