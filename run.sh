@@ -13,7 +13,7 @@ trap kill_it HUP   # 1  - Hangup detected on controlling terminal or death of co
 
 function kill_it() {
     echo "Killed $@";
-    [ "$RUNNING" != "" ] && grep -v "$RUNNING" running.txt > running.txt;
+    [ "$RUNNING" != "" ] && grep -v "$RUNNING" running.txt > running.tmp && mv running.tmp running.txt
     deactivate
     exit 1;
 }
@@ -26,7 +26,8 @@ for l in $(cat list.txt | shuf); do
     echo $l >> running.txt;
     RUNNING="$l";
     ./ssjl.py "https://$l.substack.com" "$l" --archive "$l.txt";
-    grep -v "$l" running.txt > running.txt;
+    grep -v "$l" running.txt > running.tmp; 
+    mv running.tmp running.txt;
     RUNNING="";
   fi
 done
