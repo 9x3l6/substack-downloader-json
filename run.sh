@@ -24,18 +24,33 @@ source .venv/bin/activate;
 RUNNING="";
 KILLED=false;
 
-while [ $KILLED = false ]; do
-  for l in $(cat list.txt | shuf); do
-    echo ">>> $l";
-    if [ "$(grep "$l" running.txt)" == "" ]; then
-      echo $l >> running.txt;
-      RUNNING="$l";
-      ./ssjl.py "https://$l.substack.com" "$l" --archive "$l.txt";
-      grep -v "$l" running.txt > running.tmp; 
-      mv running.tmp running.txt;
-      RUNNING="";
-      echo "waiting 60 seconds";
-      sleep 60
-    fi
+if [ "$1" == "" ]; then 
+  while [ $KILLED = false ]; do
+    for l in $(cat list.txt | shuf); do
+      echo ">>> $l";
+      if [ "$(grep "$l" running.txt)" == "" ]; then
+        echo $l >> running.txt;
+        RUNNING="$l";
+        ./ssjl.py "https://$l.substack.com" "$l" --archive "$l.txt" --exit true;
+        grep -v "$l" running.txt > running.tmp; 
+        mv running.tmp running.txt;
+        RUNNING="";
+        echo "waiting 10 seconds";
+        sleep 10
+      else
+        echo "RUNNING: $l";
+      fi
+    done
   done
-done
+else
+  if [ "$(grep "$1" running.txt)" == "" ]; then
+    echo $1 >> running.txt;
+    RUNNING="$1";
+    ./ssjl.py "https://$1.substack.com" "$1" --archive "$1.txt" --exit "${2:-false}";
+    grep -v "$1" running.txt > running.tmp; 
+    mv running.tmp running.txt;
+    RUNNING="";
+  else
+    echo "RUNNING: $1";
+  fi
+fi

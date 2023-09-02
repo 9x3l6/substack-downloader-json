@@ -18,6 +18,7 @@ from random import randrange
 import asyncio
 import json
 from pathlib import Path
+from distutils.util import strtobool
 
 def create_dir(directory):
     if not os.path.isdir(directory):
@@ -51,7 +52,7 @@ def fetch_html(url):
     except Exception as err:
         print(f'Other error occurred: {err}')
 
-def fetch_and_parse(url, archive=None):
+def fetch_and_parse(url, archive=None, exit=True):
     try:
         limit = 12
         offset = 0
@@ -107,13 +108,12 @@ def fetch_and_parse(url, archive=None):
                             'videos': videos,
                             'date': Date,
                         }
-                    timeout = randrange(5, 60)
+                    timeout = randrange(5, 30)
                     print('Waiting: %s' % timeout)
                     sleep(timeout)
                 else:
-                    timeout = randrange(5, 10)
-                    print('Waiting %s seconds: %s' % (timeout, Link))
-                    sleep(timeout)
+                    if exit:
+                        sys.exit(0)
             offset = limit + offset
             results_len = len(entries)
     except KeyboardInterrupt:
@@ -191,10 +191,11 @@ def arguments():
     parser.add_argument('url', help='Substack URL to download')
     parser.add_argument('dir', help='Directory where to download')
     parser.add_argument("--archive", required=False, help="Archive that saves list of downloaded files")
+    parser.add_argument('--exit', required=False, dest='exit', type=lambda x: bool(strtobool(x)), default=True)
 
     args = parser.parse_args()
     return args
 
 if __name__ == '__main__':
     args = arguments()
-    save_files(args.dir, fetch_and_parse(args.url, args.archive), args.archive)
+    save_files(args.dir, fetch_and_parse(args.url, args.archive, args.exit), args.archive)
