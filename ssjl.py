@@ -191,7 +191,7 @@ def arguments():
     parser.add_argument('url', help='Substack URL to download')
     parser.add_argument('dir', help='Directory where to download')
     parser.add_argument("--archive", required=False, help="Archive that saves list of downloaded files")
-    parser.add_argument('--exit', required=False, dest='exit', type=lambda x: bool(strtobool(x)), default=True)
+    parser.add_argument('--exit', required=False, dest='exit', type=lambda x: bool(strtobool(x)), default='true')
 
     args = parser.parse_args()
     return args
